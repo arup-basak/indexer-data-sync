@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Token {
+  id           String       @id @default(uuid())
+  image_url    String
+  collectionId String
+  rairity      Int
+  createdAt    DateTime     @default(now())
+  attributes   Attributes[]
+  collection   Collection   @relation(fields: [collectionId], references: [id])
+}
+
+model Attributes {
+  id         String @id @default(uuid())
+  trait_type String
+  value      String
+
+  token   Token?    @relation(fields: [tokenId], references: [id])
+  tokenId String?
+}
+
+model Collection {
+  id   String @id @default(uuid())
+  name String
+  Token  Token[]
+}
