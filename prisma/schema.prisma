@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "cockroachdb"
   url      = env("DATABASE_URL")
 }
 
@@ -22,12 +22,20 @@ model Attributes {
   trait_type String
   value      String
 
-  token   Token?    @relation(fields: [tokenId], references: [id])
+  token   Token?  @relation(fields: [tokenId], references: [id])
   tokenId String?
 }
 
 model Collection {
-  id   String @id @default(uuid())
-  name String
-  Token  Token[]
+  id    String  @id @default(uuid())
+  name  String
+  Token Token[]
+}
+
+model FloorPrice {
+  id              String   @id @default(uuid())
+  collection_id   String
+  collection_name String
+  createdAt       DateTime @default(now())
+  price           Float
 }
