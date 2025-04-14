@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "cockroachdb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -36,6 +36,16 @@ model FloorPrice {
   id              String   @id @default(uuid())
   collection_id   String
   collection_name String
+  total_listings	String
   createdAt       DateTime @default(now())
   price           Float
+}
+
+model Volume {
+  id              String   @id @default(uuid())
+  collection_id   String
+  collection_name String
+  total_sales     String
+  total_volume_apt String
+  createdAt       DateTime @default(now())
 }

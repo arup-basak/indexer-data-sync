@@ -1,12 +1,42 @@
-import { FloorType, getFloorValues, storeFloorValues } from "../queries/get_floor_price";
+import {
+  FloorType,
+  getFloorValues,
+  storeFloorValues,
+} from "../queries/get_floor_price";
+import { queue } from "../libs/redis";
 
 const MAX_FETCHING = 100;
+const FLOOR_BATCH_QUEUE = "floor-batch-queue";
 
-export const runFloorPrice = async () => {
+const floorBatchQueue = queue(FLOOR_BATCH_QUEUE);
+
+export const processFloorBatch = async (
+  batchOffset: number,
+  batchSize: number
+) => {
+  try {
+    const result = await getFloorValues(batchSize, batchOffset);
+    if (result && Array.isArray(result)) {
+      await storeFloorValues(result);
+      console.info(
+        `Processed and stored batch at offset ${batchOffset}, items: ${result.length}`
+      );
+      return result;
+    }
+    return [];
+  } catch (error) {
+    console.error(
+      `Error processing floor batch at offset ${batchOffset}:`,
+      error
+    );
+    throw error;
+  }
+};
+
+export const runFloorPrice = async (): Promise<FloorType[]> => {
   console.info("Running floor price fetch...");
   const batchSize = 10;
   const total = MAX_FETCHING;
-  const allValues: FloorType[] = [];
 
   try {
     console.info(`Starting floor price fetch with batch size ${batchSize}`);
@@ -16,20 +46,19 @@ export const runFloorPrice = async () => {
       (_, i) => i * batchSize
     );
 
-    for (const offset of offsets) {
-      const result = await getFloorValues(batchSize, offset);
-      if (result && Array.isArray(result)) {
-        allValues.push(...result);
-        console.info(`Fetched batch at offset ${offset}, total items: ${allValues.length}`);
-      }
-    }
+    // Process each batch directly
+    const batchResults = await Promise.all(
+      offsets.map((offset) => processFloorBatch(offset, batchSize))
+    );
 
-    console.info(`Successfully fetched ${allValues.length} floor values`);
-    await storeFloorValues(allValues);
-    console.info('Successfully stored floor values in database');
-    return allValues;
+    const flattenedResults = batchResults.flat();
+    console.info(
+      `Successfully processed ${flattenedResults.length} floor price items`
+    );
+
+    return flattenedResults;
   } catch (error) {
-    console.error("Error fetching floor prices:", error);
+    console.error("Error processing floor price batches:", error);
     throw error;
   }
 };

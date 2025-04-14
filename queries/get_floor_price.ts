@@ -12,8 +12,8 @@ interface IResponse {
   data: FloorType[];
 }
 
-const get_floor_url = (limit: number, offset: number) =>
-  `https://api.mainnet.aptoslabs.com/v1/analytics/nft/collection/list_by_floor_price?limit=${limit}&offset=${offset}&time_period=1d`;
+const get_floor_url = (limit: number, offset: number, time_period: string = "1d") =>
+  `https://api.mainnet.aptoslabs.com/v1/analytics/nft/collection/list_by_floor_price?limit=${limit}&offset=${offset}&time_period=${time_period}`;
 
 export const getFloorValues = async (
   limit: number,
@@ -41,6 +41,7 @@ export const storeFloorValues = async (floors: FloorType[]) => {
     collection_id: floor.collection_id,
     collection_name: floor.collection_name,
     price: parseFloat(floor.floor_price_apt),
+    total_listings: floor.total_listings,
   }));
 
   return await prisma.floorPrice.createMany({
