@@ -23,6 +23,7 @@ export const getFloorValues = async (
 
   const headers = {
     "content-type": "application/json",
+    "X-API-Key": "aptoslabs_5rzM7HdjgUv_P6ahx3wZ7Ah9MousAZQ6QhXavFrasUgAU"
   };
 
   const response = await axios.get<IResponse>(url, {
@@ -40,11 +41,27 @@ export const storeFloorValues = async (floors: FloorType[]) => {
   const floorData = floors.map((floor) => ({
     collection_id: floor.collection_id,
     collection_name: floor.collection_name,
-    price: parseFloat(floor.floor_price_apt),
+    floor_price_apt: parseFloat(floor.floor_price_apt),
     total_listings: floor.total_listings,
   }));
 
-  return await prisma.floorPrice.createMany({
-    data: floorData,
-  });
+  const promises = floorData.map((floor) =>
+    prisma.collection.upsert({
+      create: {
+        collection_id: floor.collection_id,
+        collection_name: floor.collection_name,
+        floor_price_apt: floor.floor_price_apt,
+        total_listings: floor.total_listings
+      },
+      update: {
+        floor_price_apt: floor.floor_price_apt,
+        total_listings: floor.total_listings
+      },
+      where: {
+        collection_id: floor.collection_id
+      }
+    })
+  );
+
+  return await Promise.all(promises);
 };

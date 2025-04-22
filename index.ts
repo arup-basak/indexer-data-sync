@@ -19,7 +19,7 @@ async function registerJobs() {
     { fn: "runFloorPrice" },
     {
       repeat: {
-        every: 5000,
+        every: 10000,
       },
     }
   );
@@ -29,7 +29,7 @@ async function registerJobs() {
     { fn: "runVolume" },
     {
       repeat: {
-        every: 5000,
+        every: 10000,
       },
     }
   );

@@ -61,10 +61,12 @@ const current_token_data_v2 = gql`
 `;
 
 export async function fetchCurrentTokenDataV2(collectionId: string) {
+  console.log(`Fetching current token data v2 for collectionId: ${collectionId}`);
   try {
     const response = await client.request<{current_token_datas_v2: TokenData[]}>(current_token_data_v2, {
       collectionId,
     });
+    console.log("Fetched current token data v2 response:", response);
     return response.current_token_datas_v2;
   } catch (error) {
     console.error("Error fetching current token data v2:", error);

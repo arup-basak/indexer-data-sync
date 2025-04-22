@@ -9,7 +9,9 @@ interface Attribute {
 interface NFTMetadata {
   name: string;
   description: string;
-  image: string;
+  image_url: string;
+  rairity: number;
+  collectionId: string;
   attributes?: Attribute[];
 }
 
