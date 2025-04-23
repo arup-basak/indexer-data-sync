@@ -1,5 +1,5 @@
 import { gql } from "graphql-request";
-import client from "../libs/graphql";
+import { client } from "../libs/graphql";
 
 export interface TokenData {
     token_data_id: string;

@@ -14,21 +14,22 @@ model Collection {
   collection_name  String
   total_sales      String?
   total_listings   String?
+  uri              String?
   floor_price_apt  Float?   @default(0)
   owners           Int      @default(0)
-  total_volume_apt Int?     @default(0)
+  total_volume_apt BigInt?  @default(0)
   createdAt        DateTime @default(now())
   Token            Token[]
 }
 
 model Token {
   id           String       @id @default(uuid())
-  image_url    String
-  collectionId String
+  image_url    String?
+  collection_id String
   rairity      Float        @default(0)
   createdAt    DateTime     @default(now())
   attributes   Attributes[]
-  collection   Collection   @relation(fields: [collectionId], references: [id])
+  collection   Collection   @relation(fields: [collection_id], references: [id])
 }
 
 model Attributes {

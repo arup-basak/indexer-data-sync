@@ -1,14 +1,15 @@
-import {
-  FloorType,
-  getFloorValues,
-  storeFloorValues,
-} from "../queries/get_floor_price";
-import { queue } from "../libs/redis";
+import { getFloorValues, storeFloorValues } from "../queries/get_floor_price";
+import PQueue from "p-queue";
 
-const MAX_FETCHING = 100;
-const FLOOR_BATCH_QUEUE = "floor-batch-queue";
+const MAX_FETCHING = 1000;
+const BATCH_SIZE = 10;
+const INTERVAL_MS = 10_000;
 
-const floorBatchQueue = queue(FLOOR_BATCH_QUEUE);
+const queue = new PQueue({
+  concurrency: 1,
+  interval: INTERVAL_MS,
+  intervalCap: 1,
+});
 
 export const processFloorBatch = async (
   batchOffset: number,
@@ -33,32 +34,18 @@ export const processFloorBatch = async (
   }
 };
 
-export const runFloorPrice = async (): Promise<FloorType[]> => {
-  console.info("Running floor price fetch...");
-  const batchSize = 10;
-  const total = MAX_FETCHING;
+export const startThrottledFloorProcessing = async () => {
+  console.info("Starting throttled floor batch processing...");
 
-  try {
-    console.info(`Starting floor price fetch with batch size ${batchSize}`);
+  const totalBatches = Math.ceil(MAX_FETCHING / BATCH_SIZE);
 
-    const offsets = Array.from(
-      { length: Math.ceil(total / batchSize) },
-      (_, i) => i * batchSize
-    );
+  for (let i = 0; i < totalBatches; i++) {
+    const offset = i * BATCH_SIZE;
 
-    // Process each batch directly
-    const batchResults = await Promise.all(
-      offsets.map((offset) => processFloorBatch(offset, batchSize))
-    );
-
-    const flattenedResults = batchResults.flat();
-    console.info(
-      `Successfully processed ${flattenedResults.length} floor price items`
-    );
-
-    return flattenedResults;
-  } catch (error) {
-    console.error("Error processing floor price batches:", error);
-    throw error;
+    queue.add(() => processFloorBatch(offset, BATCH_SIZE));
   }
+
+  await queue.onIdle();
+
+  console.info("All floor batches processed.");
 };

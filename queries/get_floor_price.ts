@@ -37,7 +37,7 @@ export const getFloorValues = async (
   return [];
 };
 
-export const storeFloorValues = async (floors: FloorType[]) => {
+export const storeFloorValues = async (floors: FloorType[]): Promise<void> => {
   const floorData = floors.map((floor) => ({
     collection_id: floor.collection_id,
     collection_name: floor.collection_name,
@@ -63,5 +63,5 @@ export const storeFloorValues = async (floors: FloorType[]) => {
     })
   );
 
-  return await Promise.all(promises);
+  // return await Promise.all(promises);
 };

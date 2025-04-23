@@ -1,10 +1,8 @@
 import { VolumeType, getVolumeValues, storeVolumeValues } from "../queries/get_volume";
-import { queue } from "../libs/redis";
+import { getChannel } from "../libs/rabbitmq";
 
 const MAX_FETCHING = 100;
 const VOLUME_BATCH_QUEUE = "volume-batch-queue";
-
-const volumeBatchQueue = queue(VOLUME_BATCH_QUEUE);
 
 export const processVolumeBatch = async (batchOffset: number, batchSize: number) => {
   try {
@@ -34,6 +32,17 @@ export const runVolume = async (): Promise<VolumeType[]> => {
       (_, i) => i * batchSize
     );
 
+    // Send each batch to the queue
+    const channel = await getChannel();
+    for (const offset of offsets) {
+      await channel.sendToQueue(
+        VOLUME_BATCH_QUEUE,
+        Buffer.from(JSON.stringify({ offset, batchSize })),
+        { persistent: true }
+      );
+    }
+
+    // Process each batch directly
     const batchResults = await Promise.all(
       offsets.map(offset => processVolumeBatch(offset, batchSize))
     );

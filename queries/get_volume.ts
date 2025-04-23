@@ -38,7 +38,7 @@ export const getVolumeValues = async (
   return [];
 };
 
-export const storeVolumeValues = async (volumes: VolumeType[]) => {
+export const storeVolumeValues = async (volumes: VolumeType[]): Promise<void> => {
   const volumeData = volumes.map((volume) => ({
     collection_id: volume.collection_id,
     collection_name: volume.collection_name,
@@ -67,5 +67,5 @@ export const storeVolumeValues = async (volumes: VolumeType[]) => {
     });
   });
 
-  return await Promise.all(promises);
+  // return await Promise.all(promises);
 };
