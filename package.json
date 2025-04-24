@@ -23,6 +23,7 @@
     "axios": "^1.8.4",
     "graphql-request": "^7.1.2",
     "p-queue": "^8.1.0",
-    "prisma": "^6.6.0"
+    "prisma": "^6.6.0",
+    "winston": "^3.17.0"
   }
 }

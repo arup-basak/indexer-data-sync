@@ -1,4 +1,5 @@
 import PQueue from "p-queue";
+import { withErrorHandling } from "./error";
 
 interface BatchProcessorOptions<T> {
   maxItems: number;
@@ -25,9 +26,15 @@ export const createThrottledBatchProcessor = <T>({
 
   const processBatch = async (offset: number) => {
     try {
-      const items = await fetchBatch(batchSize, offset);
+      const items = await withErrorHandling(
+        () => fetchBatch(batchSize, offset),
+        `[${label}] Fetching batch`
+      );
       if (items && Array.isArray(items)) {
-        await storeBatch(items);
+        await withErrorHandling(
+          () => storeBatch(items),
+          `[${label}] Storing batch`
+        );
         console.info(
           `[${label}] Processed offset ${offset}, count: ${items.length}`
         );

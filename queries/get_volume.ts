@@ -24,7 +24,7 @@ export const getVolumeValues = async (
 
   const headers = {
     "content-type": "application/json",
-    "Authorization": "Bearer aptoslabs_5rzM7HdjgUv_P6ahx3wZ7Ah9MousAZQ6QhXavFrasUgAU"
+    "Authorization": `Bearer ${process.env.APTOS_API_KEY}`
   };
 
   const response = await axios.get<IResponse>(url, {
