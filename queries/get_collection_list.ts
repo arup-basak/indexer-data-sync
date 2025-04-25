@@ -6,7 +6,7 @@ import { getTokenMetadata } from "../utils/attributes";
 import { calculateNormalizedRarityScore } from "../libs/rairity";
 interface ICollection {
   collection_id: string;
-  collection_data?: {
+  current_collection?: {
     collection_name: string;
     uri: string;
   };
@@ -74,23 +74,24 @@ export const storeCollectionList = async (collections: ICollection[]): Promise<v
         };
       });
 
-      prisma.collection.upsert({
+      await prisma.collection.upsert({
         where: {
           collection_id: collection.collection_id,
         },
         update: {
           collection_name:
-            collection.collection_data?.collection_name ?? "NO Data",
-          uri: collection.collection_data?.uri ?? "",
+            collection.current_collection?.collection_name ?? "NO Data",
+          uri: collection.current_collection?.uri ?? "",
           Token: {
+            deleteMany: {}, // Delete existing tokens
             create: token_data_db,
           },
         },
         create: {
           collection_id: collection.collection_id,
           collection_name:
-            collection.collection_data?.collection_name ?? "NO Data",
-          uri: collection.collection_data?.uri ?? "",
+            collection.current_collection?.collection_name ?? "NO Data",
+          uri: collection.current_collection?.uri ?? "",
           Token: {
             create: token_data_db,
           },
@@ -102,7 +103,5 @@ export const storeCollectionList = async (collections: ICollection[]): Promise<v
     }
   });
 
-  // Filter out null results and wait for all promises
-  const results = await Promise.all(promises);
-  // return results.filter((result) => result !== null);
+  await Promise.all(promises);
 };

@@ -25,7 +25,7 @@ const volumeProcessor = createThrottledBatchProcessor<VolumeType>({
 const collectionProcessor = createThrottledBatchProcessor<any>({
   maxItems: 1000000,
   batchSize: 10,
-  intervalMs: 5000,
+  intervalMs: 1000,
   fetchBatch: getCollectionList,
   storeBatch: storeCollectionList,
   label: "Collection",
