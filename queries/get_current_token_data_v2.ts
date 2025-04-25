@@ -5,7 +5,7 @@ export interface TokenData {
     token_data_id: string;
     token_name: string;
     cdn_asset_uris: {
-      cdn_image_uri: string;
+      cdn_image_uri?: string;
       cdn_json_uri: string | null;
       animation_optimizer_retry_count: number;
       asset_uri: string;

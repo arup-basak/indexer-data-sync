@@ -7,7 +7,7 @@ import { getCollectionList, storeCollectionList } from "./queries/get_collection
 const floorProcessor = createThrottledBatchProcessor<FloorType>({
   maxItems: 1000,
   batchSize: 10,
-  intervalMs: 10_000,
+  intervalMs: 10_00,
   fetchBatch: getFloorValues,
   storeBatch: storeFloorValues,
   label: "FloorPrice",
@@ -16,7 +16,7 @@ const floorProcessor = createThrottledBatchProcessor<FloorType>({
 const volumeProcessor = createThrottledBatchProcessor<VolumeType>({
   maxItems: 1000,
   batchSize: 10,
-  intervalMs: 10_000,
+  intervalMs: 10_00,
   fetchBatch: getVolumeValues,
   storeBatch: storeVolumeValues,
   label: "Volume",
@@ -25,13 +25,13 @@ const volumeProcessor = createThrottledBatchProcessor<VolumeType>({
 const collectionProcessor = createThrottledBatchProcessor<any>({
   maxItems: 1000000,
   batchSize: 10,
-  intervalMs: 20_000,
+  intervalMs: 5000,
   fetchBatch: getCollectionList,
   storeBatch: storeCollectionList,
   label: "Collection",
 });
 
 
-floorProcessor.start();
-volumeProcessor.start();
+// floorProcessor.start();
+// volumeProcessor.start();
 collectionProcessor.start();

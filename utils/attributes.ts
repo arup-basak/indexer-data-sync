@@ -39,7 +39,7 @@ export const getTokenMetadata = async (tokenData: TokenData) => {
     return attributes;
   }
 
-  if (tokenData.cdn_asset_uris.cdn_json_uri) {
+  if (tokenData.cdn_asset_uris && tokenData.cdn_asset_uris.cdn_json_uri) {
     const url = tokenData.cdn_asset_uris.cdn_json_uri;
     const attributes = await fetchNFTMetadata(url);
     return attributes;
